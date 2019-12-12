@@ -18,11 +18,37 @@ const UserSchema = new Schema({
         type: String,
         trim: true,
         required: true
-    }
+    },
+    // token: {
+    //     type: String,
+    //     trim: true,
+    //    // required: true
+    // },
+    // refreshToken: {
+    //     type: String,
+    //     trim: true,
+    //    // required: true
+    // },
+    refreshTokens:
+    //[
+     { type: [String] }
+        //     {
+        //     token: {
+        //         type: String,
+        //         trim: true,
+        //      //   required: true
+        //     },
+        //     refreshToken: {
+        //         type: String,
+        //         trim: true,
+        //       //  required: true
+        //     }
+        // }
+  // ]
 });
 // hash user password before saving into database
-UserSchema.pre('save', function (next) {
-    this.password = bcrypt.hashSync(this.password, saltRounds);
-    next();
-});
+// UserSchema.pre('save', function (next) {
+//     this.password = bcrypt.hashSync(this.password, saltRounds);
+//     next();
+// });
 module.exports = mongoose.model('User', UserSchema);
