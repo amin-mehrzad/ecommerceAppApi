@@ -1,4 +1,5 @@
 const userModel = require('../models/users');
+const refreshTokenModel = require('../models/refreshTokens');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const saltRounds = 10;
@@ -23,6 +24,18 @@ module.exports = {
                 if (bcrypt.compareSync(req.body.password, userInfo.password)) {
                     const token = jwt.sign({ id: userInfo._id }, req.app.get('secretKey'), { expiresIn: 600 });
                     const refreshToken = jwt.sign({ id: userInfo._id }, req.app.get('refreshTokenSecretKey'), { expiresIn: 86400 });
+                    decodedRefreshToken = jwt.verify(refreshToken, req.app.get('refreshTokenSecretKey'));
+                    expiredDate = new Date(decodedRefreshToken.exp * 1000)
+                    issuedDate = new Date(decodedRefreshToken.iat * 1000)
+
+                 refreshTokenModel.create({  refreshToken: refreshToken,
+                                                userID: userInfo._id ,
+                                                userName: userInfo.name,
+                                                revoke: false,
+                                                issuedDate: issuedDate,
+                                                expiredDate:expiredDate
+                                            }) 
+                  //  console.log(issuedDate)
                    // userInfo.token = token;
                    // userInfo.refreshToken = refreshToken;
                    // newTokens=[refreshToken]
@@ -50,9 +63,17 @@ module.exports = {
                     if (err) {
                       res.json({status:"error", message: err.message, data:null});
                     }else{
+                        // refreshTokenModel.insert({ refreshTokens: req.body.refreshToken})
                       // add user id to request
-                     // req.body.userId = decoded.id;
-                     console.log(decoded)
+                      // req.body.userId = decoded.id;
+                      // const expireDate = Date(0);
+                      //   expireDate.setUTCSeconds(token.data.exp);
+                      // const date = new Date(0);
+                  
+                     //console.log(date.setUTCSeconds(decoded.exp))
+                     //  console.log(date.setUTCSeconds(decoded.iat))
+                     console.log(new Date(decoded.exp * 1000))
+                     console.log(new Date(decoded.iat * 1000))
                      const token = jwt.sign({ id: tokenInfo._id }, req.app.get('secretKey'), { expiresIn: 600 });
                // tokenInfo.tokens.token=token;
                 res.json({ status: "success", message: "token refreshed!!!", data: { token: token } });
