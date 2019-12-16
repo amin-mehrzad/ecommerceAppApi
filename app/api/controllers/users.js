@@ -1,5 +1,6 @@
 const userModel = require('../models/users');
-const refreshTokenModel = require('../models/refreshTokens');
+//const refreshTokenModel = require('../models/refreshTokens');
+const scopeModel = require('../models/scopes');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const saltRounds = 10;
@@ -9,11 +10,15 @@ module.exports = {
         encryptedPass=bcrypt.hashSync(req.body.password, saltRounds);
         userModel.create({ name: req.body.name, email: req.body.email, password: encryptedPass }, function (err, result) {
             if (err)
-            next(err);
-
-            else
+                next(err);
+            else{
+                console.log(result._id)
+                scopeModel.create({userID: result._id , read:["users","movies","scopes"] , write:["users","movies","scopes"] }, function(error,doc){
+                    if (error)
+                     next(error);
+                });
                 res.json({ status: "success", message: "User added successfully!!!", data: null });
-
+            }
         });
     },
     authenticate: function (req, res, next) {
@@ -22,24 +27,39 @@ module.exports = {
                 next(err);
             } else {
                 if (bcrypt.compareSync(req.body.password, userInfo.password)) {
+
+
+         /*           scopeModel.findOne({userID:userInfo._id},function(error,scopeInfo){ })
+                              .where('read')
+                              .in(['movies','all'])
+                              .exec(function (err, records) {
+                                //make magic happen
+                                console.log(records._id)
+                              });
+                              */
+                              
                     const token = jwt.sign({ id: userInfo._id }, req.app.get('secretKey'), { expiresIn: 600 });
                     const refreshToken = jwt.sign({ id: userInfo._id }, req.app.get('refreshTokenSecretKey'), { expiresIn: 86400 });
+                    
+                    /*  save refreshToken to DB removed 
+ 
                     decodedRefreshToken = jwt.verify(refreshToken, req.app.get('refreshTokenSecretKey'));
                     expiredDate = new Date(decodedRefreshToken.exp * 1000)
                     issuedDate = new Date(decodedRefreshToken.iat * 1000)
-
-                 refreshTokenModel.create({  refreshToken: refreshToken,
+                    refreshTokenModel.create({  refreshToken: refreshToken,
                                                 userID: userInfo._id ,
                                                 userName: userInfo.name,
                                                 revoke: false,
                                                 issuedDate: issuedDate,
                                                 expiredDate:expiredDate
                                             }) 
+                    */
+
                   //  console.log(issuedDate)
                    // userInfo.token = token;
                    // userInfo.refreshToken = refreshToken;
                    // newTokens=[refreshToken]
-                   userInfo.refreshTokens=userInfo.refreshTokens.concat([refreshToken])
+          //         userInfo.refreshTokens=userInfo.refreshTokens.concat([refreshToken])
                    // userInfo.tokens =  userInfo.tokens.concat({ token, refreshToken });
                    // userInfo.tokens[refreshToken] =  { token, refreshToken };
                     //userInfo.tokens = userInfo.tokens.concat({ token, refreshToken });
@@ -55,10 +75,10 @@ module.exports = {
     },
     refreshToken: function (req, res, next) {
        // userModel.findOne({ 'tokens.refreshToken' : req.body.refreshToken }, function (err, tokenInfo) {
-            userModel.findOne({ refreshTokens: req.body.refreshToken}  , function (err, tokenInfo) {
-            console.log(tokenInfo)
-            if (err) { next(err); }
-            if (tokenInfo) {
+        //    userModel.findOne({ refreshTokens: req.body.refreshToken}  , function (err, tokenInfo) {
+            console.log(req.body)
+         //   if (err) { next(err); }
+           // if (tokenInfo) {
                 jwt.verify(req.body.refreshToken, req.app.get('refreshTokenSecretKey'), function(err, decoded) {
                     if (err) {
                       res.json({status:"error", message: err.message, data:null});
@@ -74,16 +94,16 @@ module.exports = {
                      //  console.log(date.setUTCSeconds(decoded.iat))
                      console.log(new Date(decoded.exp * 1000))
                      console.log(new Date(decoded.iat * 1000))
-                     const token = jwt.sign({ id: tokenInfo._id }, req.app.get('secretKey'), { expiresIn: 600 });
+                     const token = jwt.sign({ id: decoded.id }, req.app.get('secretKey'), { expiresIn: 600 });
                // tokenInfo.tokens.token=token;
                 res.json({ status: "success", message: "token refreshed!!!", data: { token: token } });
                    //   next();
                     }
                   });
                 
-            }  else {
-                res.json({ status: "error", message: "token is wrong", data: null });
-            }
-        });
+        ///    }  else {
+              //  res.json({ status: "error", message: "token is wrong", data: null });
+     //       }
+    //    });
     }
 }

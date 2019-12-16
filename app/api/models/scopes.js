@@ -10,11 +10,11 @@ const ScopesSchema = new Schema({
         trim: true,
         required: true
     },
-    userName: {
-        type: String,
-        trim: true,
-        required: true
-    },
+    // userName: {
+    //     type: String,
+    //     trim: true,
+    //     required: true
+    // },
     read: {
         type: [String],
         trim: true,
