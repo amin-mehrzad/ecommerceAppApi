@@ -4,8 +4,14 @@ const movies = require('./routes/movies') ;
 const users = require('./routes/users');
 const bodyParser = require('body-parser');
 const mongoose = require('./config/database'); //database configuration
-var jwt = require('jsonwebtoken');
 const app = express();
+
+var jwt = require('jsonwebtoken');
+var jwtAuthentication = require('express-jwt');
+jwtAuthentication.unless = require('express-unless');
+
+
+
 app.set('secretKey', 'nodeRestApi'); // jwt secret token
 app.set('refreshTokenSecretKey', 'nodeRestApi'); // jwt secret refresh token
 // connection to mongodb
@@ -15,13 +21,23 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.get('/', function(req, res){
 res.json({"tutorial" : "Build REST API with node.js"});
 });
+
+
+// athenticate root API route 
+app.use('/API', jwtAuthentication({ secret: 'nodeRestApi'}).unless({path:[/\/API\/users/]}));
+
 // public route
-app.use('/users', users);
+app.use('/API/users', users);
 // private route
-app.use('/movies', validateUser, movies);
+// app.use('/movies', validateUser, movies);                ////verifing jwt using default jwt method
+app.use('/API/movies', movies);
+//app.use('/movies', jwtAuthentication({ secret: 'nodeRestApi'}), movies);
 app.get('/favicon.ico', function(req, res) {
     res.sendStatus(204);
 });
+
+
+/*  
 function validateUser(req, res, next) {
   jwt.verify(req.headers['x-access-token'], req.app.get('secretKey'), function(err, decoded) {
     if (err) {
@@ -31,9 +47,11 @@ function validateUser(req, res, next) {
       req.body.userId = decoded.id;
       next();
     }
-  });
-  
-}
+  });  
+}      
+*/
+
+
 // express doesn't consider not found 404 as an error so we need to handle 404 explicitly
 // handle 404 error
 app.use(function(req, res, next) {

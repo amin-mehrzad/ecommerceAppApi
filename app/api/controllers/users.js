@@ -13,7 +13,8 @@ module.exports = {
                 next(err);
             else{
                 console.log(result._id)
-                scopeModel.create({userID: result._id , read:["users","movies","scopes"] , write:["users","movies","scopes"] }, function(error,doc){
+             //   scopeModel.create({userID: result._id , read:["users","scopes"] , write:["users","movies","scopes"] }, function(error,doc){
+                    scopeModel.create( {userID: result._id , permissions:["users:read","movies:read","scopes:read","users:write","movies:write","scopes:write"] }, function(error,doc){
                     if (error)
                      next(error);
                 });
@@ -28,18 +29,19 @@ module.exports = {
             } else {
                 if (bcrypt.compareSync(req.body.password, userInfo.password)) {
 
+                  
 
-         /*           scopeModel.findOne({userID:userInfo._id},function(error,scopeInfo){ })
-                              .where('read')
-                              .in(['movies','all'])
-                              .exec(function (err, records) {
-                                //make magic happen
-                                console.log(records._id)
-                              });
-                              */
+
+                               scopeModel.findOne({userID:userInfo._id},function(error,scopeInfo){
+                                console.log('!!!!!')
+                               console.log(scopeInfo.permissions)
+                             // console.log(scopeInfo.permissions)
+                               console.log('!!!!!') 
+                           
+
+                            const token = jwt.sign({ id: userInfo._id, permissions: scopeInfo.permissions}, req.app.get('secretKey'), { expiresIn: 600 });
+                            const refreshToken = jwt.sign({ id: userInfo._id, permissions: scopeInfo.permissions}, req.app.get('refreshTokenSecretKey'), { expiresIn: 86400 });
                               
-                    const token = jwt.sign({ id: userInfo._id }, req.app.get('secretKey'), { expiresIn: 600 });
-                    const refreshToken = jwt.sign({ id: userInfo._id }, req.app.get('refreshTokenSecretKey'), { expiresIn: 86400 });
                     
                     /*  save refreshToken to DB removed 
  
@@ -65,11 +67,14 @@ module.exports = {
                     //userInfo.tokens = userInfo.tokens.concat({ token, refreshToken });
                     //userInfo.tokens.push({ token, refreshToken });
                     console.log(userInfo);
-                    userInfo.save();
+                  //  userInfo.save();
                     res.json({ status: "success", message: "user found!!!", data: { user: userInfo, token: token, refreshToken: refreshToken } });
+                })
                 } else {
                     res.json({ status: "error", message: "Invalid email/password!!!", data: null });
                 }
+
+                
             }
         });
     },
@@ -81,7 +86,7 @@ module.exports = {
            // if (tokenInfo) {
                 jwt.verify(req.body.refreshToken, req.app.get('refreshTokenSecretKey'), function(err, decoded) {
                     if (err) {
-                      res.json({status:"error", message: err.message, data:null});
+                      res.json({status: "error", message: err.message, data: null});
                     }else{
                         // refreshTokenModel.insert({ refreshTokens: req.body.refreshToken})
                       // add user id to request
@@ -94,7 +99,8 @@ module.exports = {
                      //  console.log(date.setUTCSeconds(decoded.iat))
                      console.log(new Date(decoded.exp * 1000))
                      console.log(new Date(decoded.iat * 1000))
-                     const token = jwt.sign({ id: decoded.id }, req.app.get('secretKey'), { expiresIn: 600 });
+                     console.log(decoded.permissions)
+                     const token = jwt.sign({ id: decoded.id , permissions: decoded.permissions}, req.app.get('secretKey'), { expiresIn: 600 });
                // tokenInfo.tokens.token=token;
                 res.json({ status: "success", message: "token refreshed!!!", data: { token: token } });
                    //   next();

@@ -15,12 +15,17 @@ const ScopesSchema = new Schema({
     //     trim: true,
     //     required: true
     // },
-    read: {
-        type: [String],
-        trim: true,
-        required: true
-    },
-    write: {
+    // read: {
+    //     type: [String],
+    //     trim: true,
+    //     required: true
+    // },
+    // write: {
+    //     type: [String],
+    //     trim: true,
+    //     required: true
+    // },
+    permissions: {
         type: [String],
         trim: true,
         required: true
