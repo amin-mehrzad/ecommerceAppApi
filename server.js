@@ -1,15 +1,16 @@
 const express = require('express');
 const logger = require('morgan');
 const movies = require('./routes/movies') ;
+const scopes = require('./routes/scopes') ;
 const users = require('./routes/users');
 const bodyParser = require('body-parser');
 const mongoose = require('./config/database'); //database configuration
 const app = express();
+mongoose.set('useFindAndModify', false);
 
-var jwt = require('jsonwebtoken');
+//var jwt = require('jsonwebtoken');
 var jwtAuthentication = require('express-jwt');
 jwtAuthentication.unless = require('express-unless');
-
 
 
 app.set('secretKey', 'nodeRestApi'); // jwt secret token
@@ -17,20 +18,24 @@ app.set('refreshTokenSecretKey', 'nodeRestApi'); // jwt secret refresh token
 // connection to mongodb
 mongoose.connection.on('error', console.error.bind(console, 'MongoDB connection error:'));
 app.use(logger('dev'));
-app.use(bodyParser.urlencoded({extended: false}));
+//app.use(bodyParser.urlencoded({extended: false}));
+//app.use(bodyParser.json());
 app.get('/', function(req, res){
 res.json({"tutorial" : "Build REST API with node.js"});
 });
 
 
 // athenticate root API route 
-app.use('/API', jwtAuthentication({ secret: 'nodeRestApi'}).unless({path:[/\/API\/users/]}));
+app.use('/API', jwtAuthentication({ secret: 'nodeRestApi'}).unless({ path:[ { url: /\/API\/users/ , methods: ['POST'] } ] }) );
+app.use('/API/users', bodyParser.urlencoded({extended: false}) );
+app.use('/API', bodyParser.json());
 
 // public route
 app.use('/API/users', users);
 // private route
 // app.use('/movies', validateUser, movies);                ////verifing jwt using default jwt method
 app.use('/API/movies', movies);
+app.use('/API/scopes', scopes);
 //app.use('/movies', jwtAuthentication({ secret: 'nodeRestApi'}), movies);
 app.get('/favicon.ico', function(req, res) {
     res.sendStatus(204);
