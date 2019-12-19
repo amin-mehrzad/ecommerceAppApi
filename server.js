@@ -1,8 +1,6 @@
 const express = require('express');
 const logger = require('morgan');
-const products = require('./routes/products') ;
-const scopes = require('./routes/scopes') ;
-const users = require('./routes/users');
+
 const bodyParser = require('body-parser');
 const mongoose = require('./config/database'); //database configuration
 const app = express();
@@ -25,6 +23,13 @@ mongoose.connection.on('error', console.error.bind(console, 'MongoDB connection 
 app.use(logger('dev'));
 //app.use(bodyParser.urlencoded({extended: false}));
 //app.use(bodyParser.json());
+
+
+const scopes = require('./routes/scopes') ;
+const users = require('./routes/users');
+const products = require('./routes/products') ;
+const categories = require('./routes/categories') ;
+
 app.get('/', function(req, res){
 res.json({"tutorial" : "Build REST API with node.js"});
 });
@@ -37,10 +42,13 @@ app.use('/API', bodyParser.json());
 
 // public route
 app.use('/API/users', users);
+
 // private route
 // app.use('/products', validateUser, products);                ////verifing jwt using default jwt method
-app.use('/API/products', products);
 app.use('/API/scopes', scopes);
+app.use('/API/products', products);
+app.use('/API/categories', categories);
+
 //app.use('/products', jwtAuthentication({ secret: 'nodeRestApi'}), products);
 app.get('/favicon.ico', function(req, res) {
     res.sendStatus(204);

@@ -13,7 +13,8 @@ module.exports = {
                 next(err);
             else {
                 console.log(result._id)
-                scopeModel.create({ userID: result._id, permissions: ["users:read", "products:read", "scopes:read", "users:write", "products:write", "scopes:write"] }, function (error, doc) {
+                // scopeModel.create({ userID: result._id, permissions: ["users:read", "products:read", "scopes:read", "users:write", "products:write", "scopes:write"] }, function (error, doc) {
+                scopeModel.create({ userID: result._id, permissions: ["admin"] }, function (error, doc) {
                     if (error)
                         next(error);
                 });
@@ -27,8 +28,6 @@ module.exports = {
                 next(err);
             } else {
                 if (bcrypt.compareSync(req.body.password, userInfo.password)) {
-
-
 
 
                     scopeModel.findOne({ userID: userInfo._id }, function (error, scopeInfo) {
@@ -148,7 +147,7 @@ module.exports = {
             if (error) {
                 next(error);
             } else {
-                scopeModel.findOneAndRemove({userID :req.params.userId}, (err, scopeInfo) => {
+                scopeModel.findOneAndRemove({ userID: req.params.userId }, (err, scopeInfo) => {
                     res.json({ status: "success", message: "The user account deleted successfully!!!", data: null });
                 })
             }
