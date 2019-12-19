@@ -13,8 +13,7 @@ module.exports = {
                 next(err);
             else {
                 console.log(result._id)
-                //   scopeModel.create({userID: result._id , read:["users","scopes"] , write:["users","movies","scopes"] }, function(error,doc){
-                scopeModel.create({ userID: result._id, permissions: ["users:read", "movies:read", "scopes:read", "users:write", "movies:write", "scopes:write"] }, function (error, doc) {
+                scopeModel.create({ userID: result._id, permissions: ["users:read", "products:read", "scopes:read", "users:write", "products:write", "scopes:write"] }, function (error, doc) {
                     if (error)
                         next(error);
                 });

@@ -35,7 +35,7 @@ module.exports = {
     },
     updateByUserID: function (req, res, next) {
 console.log(req.body)
-        scopeModel.findOneAndUpdate({userID: req.params.userId}, { permissions: req.body.permissions}, function (err, movieInfo) {
+        scopeModel.findOneAndUpdate({userID: req.params.userId}, { permissions: req.body.permissions}, function (err, scopeInfo) {
             if (err)
                 next(err);
             else {

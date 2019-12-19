@@ -1,6 +1,6 @@
 const express = require('express');
 const logger = require('morgan');
-const movies = require('./routes/movies') ;
+const products = require('./routes/products') ;
 const scopes = require('./routes/scopes') ;
 const users = require('./routes/users');
 const bodyParser = require('body-parser');
@@ -33,10 +33,10 @@ app.use('/API', bodyParser.json());
 // public route
 app.use('/API/users', users);
 // private route
-// app.use('/movies', validateUser, movies);                ////verifing jwt using default jwt method
-app.use('/API/movies', movies);
+// app.use('/products', validateUser, products);                ////verifing jwt using default jwt method
+app.use('/API/products', products);
 app.use('/API/scopes', scopes);
-//app.use('/movies', jwtAuthentication({ secret: 'nodeRestApi'}), movies);
+//app.use('/products', jwtAuthentication({ secret: 'nodeRestApi'}), products);
 app.get('/favicon.ico', function(req, res) {
     res.sendStatus(204);
 });
