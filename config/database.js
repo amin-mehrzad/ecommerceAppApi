@@ -1,6 +1,9 @@
 //Set up mongoose connection
+require('dotenv').config();
+const dbAddress = process.env.DB_ADDRESS;
 const mongoose = require('mongoose');
-const mongoDB = 'mongodb://localhost/eCommerceAppApi';
+const mongoDB = dbAddress;
 mongoose.connect(mongoDB,{useUnifiedTopology: true , useNewUrlParser: true});
 mongoose.Promise = global.Promise;
+mongoose.set('useFindAndModify', false);
 module.exports = mongoose;

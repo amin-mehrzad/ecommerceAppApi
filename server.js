@@ -6,15 +6,20 @@ const users = require('./routes/users');
 const bodyParser = require('body-parser');
 const mongoose = require('./config/database'); //database configuration
 const app = express();
-mongoose.set('useFindAndModify', false);
+
+require('dotenv').config();
+const port = process.env.PORT;
+const secretKey = process.env.SECRET_KEY;
+const refreshSecretKey = process.env.REFRESH_SECRET_KEY;
+
 
 //var jwt = require('jsonwebtoken');
 var jwtAuthentication = require('express-jwt');
 jwtAuthentication.unless = require('express-unless');
 
 
-app.set('secretKey', 'nodeRestApi'); // jwt secret token
-app.set('refreshTokenSecretKey', 'nodeRestApi'); // jwt secret refresh token
+app.set('secretKey', secretKey); // jwt secret token
+app.set('refreshTokenSecretKey', refreshSecretKey); // jwt secret refresh token
 // connection to mongodb
 mongoose.connection.on('error', console.error.bind(console, 'MongoDB connection error:'));
 app.use(logger('dev'));
@@ -72,6 +77,6 @@ app.use(function(err, req, res, next) {
   else 
     res.status(500).json({message: "Something looks wrong :( !!!"});
 });
-app.listen(3003, function(){
- console.log('Node server listening on port 3003');
+app.listen(port, function(){
+ console.log(`Node server listening on port ${port}`);
 });
