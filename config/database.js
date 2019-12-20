@@ -6,4 +6,5 @@ const mongoDB = dbAddress;
 mongoose.connect(mongoDB,{useUnifiedTopology: true , useNewUrlParser: true});
 mongoose.Promise = global.Promise;
 mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
 module.exports = mongoose;

@@ -6,7 +6,6 @@ const jwt = require('jsonwebtoken');
 const saltRounds = 10;
 module.exports = {
     create: function (req, res, next) {
-
         encryptedPass = bcrypt.hashSync(req.body.password, saltRounds);
         userModel.create({ name: req.body.name, email: req.body.email, password: encryptedPass }, function (err, result) {
             if (err)
@@ -28,18 +27,13 @@ module.exports = {
                 next(err);
             } else {
                 if (bcrypt.compareSync(req.body.password, userInfo.password)) {
-
-
                     scopeModel.findOne({ userID: userInfo._id }, function (error, scopeInfo) {
                         console.log('!!!!!')
                         console.log(scopeInfo.permissions)
                         // console.log(scopeInfo.permissions)
                         console.log('!!!!!')
-
-
                         const token = jwt.sign({ id: userInfo._id, permissions: scopeInfo.permissions }, req.app.get('secretKey'), { expiresIn: 900 });
                         const refreshToken = jwt.sign({ id: userInfo._id, permissions: scopeInfo.permissions }, req.app.get('refreshTokenSecretKey'), { expiresIn: 86400 });
-
 
                         /*  save refreshToken to DB removed 
      
